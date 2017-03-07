@@ -31,7 +31,7 @@ def getFilters():
     #get all of the filters in the fx chain
     raw_req = sendDataStream(2)
     #print(raw_req)
-    FILTERS.clear()
+    FILTERS[:] = []
     for i in range(1,len(raw_req)):
         #print(raw_req[i])
         FILTERS.append(raw_req[i])
@@ -43,7 +43,7 @@ def getFilters():
 
 def getFilterParams():
     #get the parameters of all filters
-    FILTER_PARAMS = list()
+    FILTER_PARAMS[:] = []
     for i in range(0,len(FILTERS)):
         raw_req = sendDataStream(3,FILTERS[i])
         FILTER_PARAMS.append([])
@@ -92,7 +92,7 @@ def sendDataStream(code,data=""):
 ##        ret_msg = receiveDataStream();
 ##        return ret_msg
 
-    return "X1"
+    return "X12"
 
 def receiveDataStream():
     
@@ -102,7 +102,10 @@ def receiveDataStream():
     ser.flushInput()
     ser.flushOutput()
     data_raw = ser.readline()
-    #print(data_raw)
+    while(data_raw == ""):
+        #print("Waiting on Return")
+        data_raw = ser.readline()
+    print("From MBED, raw data is: "+data_raw)
     return data_raw
 
 
@@ -110,7 +113,7 @@ def receiveDataStream():
 
 def listFilters():
 
-    FILTER_NAMES.clear();
+    FILTER_NAMES[:] = [];
     for i in range(0,len(FILTERS)):
         FILTER_NAMES.append(filterIdToString(int(FILTERS[i])))
         
@@ -171,23 +174,22 @@ def displayMainMenu():
 #######
 #main program loop
 #######
-startUp()
-displayMainMenu()
-while(1):
-    menu_choice = input()
-    if(int(menu_choice) == 1):
-        startUp()
-    elif(int(menu_choice) == 2):
-        #add a filter, if number of filters is 2, ignore
-        if(len(FILTERS) == 2):
-            print("Already reached limit of filters")
-        else:
-            if(len(FILTERS) == 1):
-                #they've already selected serial mode
-                #show all the filters
-                for i in range(0,len(LIST_OF_FILTERS)):
-                    print()
-            pass
-            
-            
-
+##startUp()
+##displayMainMenu()
+##while(1):
+##    menu_choice = input()
+##    if(int(menu_choice) == 1):
+##        startUp()
+##    elif(int(menu_choice) == 2):
+##        #add a filter, if number of filters is 2, ignore
+##        if(len(FILTERS) == 2):
+##            print("Already reached limit of filters")
+##        else:
+##            if(len(FILTERS) == 1):
+##                #they've already selected serial mode
+##                #show all the filters
+##                for i in range(0,len(LIST_OF_FILTERS)):
+##                    print()
+##            pass
+##            
+receiveDataStream()
