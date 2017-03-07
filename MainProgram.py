@@ -32,7 +32,7 @@ def getFilters():
     raw_req = sendDataStream(2)
     #print(raw_req)
     FILTERS[:] = []
-    for i in range(1,len(raw_req)):
+    for i in range(1,len(raw_req)-2):
         #print(raw_req[i])
         FILTERS.append(raw_req[i])
         #print(FILTERS)
@@ -73,26 +73,26 @@ def sendDataStream(code,data=""):
         #5 = update mode
         #6 = get mix values
 
-##    msg = ""
-##    ret = False
-## 
-##    if(data == ""):
-##        #we're expecting a return
-##         msg = "X"+str(code)+"X"
-##         ret = True
-##         ret_msg = ""
-##    else:
-##        #just sending data to update
-##        msg = "X"+str(code)+str(data)+"X"
-##    
-##    #send the data via pyserial
-##    
-##     #wait for a return
-##    if(ret):
-##        ret_msg = receiveDataStream();
-##        return ret_msg
+    msg = ""
+    ret = False
+ 
+    if(data == ""):
+        #we're expecting a return
+         msg = "X"+str(code)
+         ret = True
+         ret_msg = ""
+    else:
+        #just sending data to update
+        msg = "X"+str(code)+str(data)+"X"
+    
+    #send the data via pyserial
+    
+     #wait for a return
+    if(ret):
+        ret_msg = receiveDataStream();
+        return ret_msg
 
-    return "X12"
+    
 
 def receiveDataStream():
     
@@ -103,7 +103,7 @@ def receiveDataStream():
     ser.flushOutput()
     data_raw = ser.readline()
     while(data_raw == ""):
-        #print("Waiting on Return")
+        print("Waiting on Return")
         data_raw = ser.readline()
     print("From MBED, raw data is: "+data_raw)
     return data_raw
@@ -173,7 +173,7 @@ def displayMainMenu():
 
 #######
 #main program loop
-#######
+#####
 ##startUp()
 ##displayMainMenu()
 ##while(1):
@@ -191,5 +191,5 @@ def displayMainMenu():
 ##                for i in range(0,len(LIST_OF_FILTERS)):
 ##                    print()
 ##            pass
-##            
-receiveDataStream()
+
+getFilters()
