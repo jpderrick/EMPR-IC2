@@ -85,7 +85,8 @@ def sendDataStream(code,data=""):
         #just sending data to update
         msg = "X"+str(code)+str(data)+"X"
     
-    #send the data via pyserial
+    ser = serial.Serial('/dev/ttyACM0', 9600)
+    ser.write(msg)
     
      #wait for a return
     if(ret):
@@ -191,5 +192,4 @@ def displayMainMenu():
 ##                for i in range(0,len(LIST_OF_FILTERS)):
 ##                    print()
 ##            pass
-while(1):
-    sendDataStream(1,"Hello")
+sendDataStream(1)
