@@ -191,5 +191,5 @@ def displayMainMenu():
 ##                for i in range(0,len(LIST_OF_FILTERS)):
 ##                    print()
 ##            pass
-
-getFilters()
+while(1):
+    sendDataStream(1,"Hello")
