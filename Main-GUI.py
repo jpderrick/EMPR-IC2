@@ -44,8 +44,6 @@ def placeFilter(filter_id,filterPop,selectedFilter):
         FILTER_TWO_SET = True
         filterTwo.configure(bg="green",text=selectedFilter)
         FILTER_TWO.append(FILTER_NAMES.index(selectedFilter))
-     #Now actually setup the filter - send this to the mbed board
-     #sendDataStream('code ''id')
     print(selectedFilter)
      
 def changeMode():
@@ -135,9 +133,9 @@ def updateFilter(filter_id,param_entry,filterParams):
         elif(len(FILTER_TWO) == 0):
             #it must be filter 1
             FILTER_ONE.append(param_entry[i].get())
-        elif(int(filter_id) == int(FILTER_ONE[0])):
+        elif(filter_id == 1):
             FILTER_ONE.append(param_entry[i].get())
-        else:
+        elif(filter_id == 2):
             FILTER_TWO.append(param_entry[i].get())
     filterParams.destroy()
 
