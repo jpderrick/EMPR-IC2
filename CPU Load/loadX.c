@@ -1,27 +1,30 @@
-#include <lpc17xx_uart.h>		// Central include files
-#include <lpc17xx_pinsel.h>
-#include <lpc_types.h>
-#include <lpc17xx_gpio.h>
-#include <stdio.h>
-#include <string.h>
-#include "serial.h"
-		// Local functions
-
+// Serial code
+#include "lpc17xx_uart.h"		// Central include files
+#include "lpc17xx_pinsel.h"
+#include "lpc_types.h"
+#include "serial.h"			// Local functions
+void displayUSB(){
+	write_usb_serial_blocking("+--------------------+\n\r",28);
+	if(Params.mode == "p"){
+	write_usb_serial_blocking("Current Mode: P or S\n\r",24);
+	write_usb_serial_blocking("Number of Effects: 3\n\r",24);
+	write_usb_serial_blocking("Effect 1: Echo\n\r",18);
+	write_usb_serial_blocking("          Delay: 3\n\r",22);
+	write_usb_serial_blocking("Effect 2: Echo\n\r",18);
+	write_usb_serial_blocking("          Delay: 3\n\r",22);
+	write_usb_serial_blocking("Mix Ratio: XX Original\n\r",26);
+	write_usb_serial_blocking("|--------------------|\n\r",28);
+	write_usb_serial_blocking("Sample rate: XX kB/s\n\r",24);
+	write_usb_serial_blocking("CPU Load: XX Percent\n\r",24);
+	write_usb_serial_blocking("+--------------------+\n\r",28);
+	int i = 0;
+}
 // Entry point for the program
-
 void main(void)
 {
+	
 	serial_init();
-	while(1){
-		char buffer[5] = {};
-		int len = 5;
-		int ret = read_usb_serial_none_blocking(buffer,len);
-		char output[30];
-		if (ret > 0) {
-			sprintf(output,"Returned %c \n", buffer[0]);
-			write_usb_serial_blocking(output, strlen(output));
-		}
-	}
+	displayUSB();
 }
 
 // Read options
@@ -53,7 +56,7 @@ void serial_init(void)
 	PINSEL_ConfigPin(&PinCfg);
 	PinCfg.Pinnum = 3;
 	PINSEL_ConfigPin(&PinCfg);
-
+		
 	/* Initialize UART Configuration parameter structure to default state:
 	 * - Baudrate = 9600bps
 	 * - 8 data bit
@@ -74,5 +77,5 @@ void serial_init(void)
 	UART_Init((LPC_UART_TypeDef *)LPC_UART0, &UARTConfigStruct);		// Initialize UART0 peripheral with given to corresponding parameter
 	UART_FIFOConfig((LPC_UART_TypeDef *)LPC_UART0, &UARTFIFOConfigStruct);	// Initialize FIFO for UART0 peripheral
 	UART_TxCmd((LPC_UART_TypeDef *)LPC_UART0, ENABLE);			// Enable UART Transmit
-
+	
 }

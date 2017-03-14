@@ -1,7 +1,8 @@
 ###Main GUI Program Version###
 
 from tkinter import *
-
+import string
+import serial 
 global PARALLEL_MODE 
 PARALLEL_MODE = True
 FILTER_NAMES = ["Low Pass","High Pass","Echo","Noise Gate","Distortion","Compression"]
@@ -18,7 +19,50 @@ ECHO = ['Room Size','Echo Gain','Decay']
 NOISE_GATE = ['Threshold']
 DISTORTION = ['Min Boundary','Max Boundarys','Threshold']
 COMPRESSION = ['Threshold','Ratio']
-#Button Callbacks
+
+##############################################################
+##############################################################
+############ COMMUNICATION METHODS/ SERIAL STUFF #############
+##############################################################
+##############################################################
+
+def sendDataStream(msg):
+    #Send data via stream
+    ser = serial.Serial('/dev/ttyACM0', 9600)
+    ser.write(msg)
+    while(True):
+        data_raw = ser.read(1)
+        print(data_raw)
+def sendMode():
+    global PARALLEL_MODE
+    if(PARALLEL_MODE):
+        sendDataStream("MP")
+    else:
+        sendDataStream("MS")
+def sendFilter(filter_id):
+    msg = "F" #Add/Edit the filter
+    msg+= str(filter_id) + "X"
+    if(filter_id == 1):
+
+        for param in FILTER_ONE:
+            msg += str(param) + "X"
+    else:
+        for param in FILTER_TWO:
+            msg += str(param) + "X"
+    print(msg)
+    sendDataStream(msg)
+def sendDelete(filter_id):
+    msg = "D" + str(filter_id) #Delete the filter
+    sendDataStream(msg)
+def updateMix():
+    pass
+
+##############################################################
+##############################################################
+############ GUI/ BUTTON CALLBACK/ MAIN PRG. STUFF ###########
+##############################################################
+##############################################################
+
 def addFilter(filter_id):
     filterPop = Toplevel()
     filterPop.geometry('{}x{}'.format(215, 300))
@@ -56,13 +100,15 @@ def changeMode():
         mode.config(text="Parallel")
         PARALLEL_MODE = True
 
-def filterTwoClick(event=None):            
-    if(not(FILTER_TWO_SET)):
-        #let them add the filter
-        addFilter(2)
-    else:
-        #show the filter parameters
-        editFilter(2)
+def filterTwoClick(event=None):
+    if(FILTER_ONE_SET):
+        
+        if(not(FILTER_TWO_SET)):
+            #let them add the filter
+            addFilter(2)
+        else:
+            #show the filter parameters
+            editFilter(2)
 
 def filterOneClick(event=None):
     if(not(FILTER_ONE_SET)):
@@ -112,6 +158,7 @@ def editFilter(filter_id):
 
     deleteButton = Button(filterParams,text="Delete",command = lambda: deleteFilter(filter_id,filterParams))
     deleteButton.pack()
+ 
 
 def updateFilter(filter_id,param_entry,filterParams):
     #set the new settings for the filter
@@ -129,32 +176,36 @@ def updateFilter(filter_id,param_entry,filterParams):
         #print(param_entry[i].get())
         if(len(FILTER_ONE) == 0):
             #it must be filter 2
-            FILTER_TWO.append(param_entry[i].get())
+            FILTER_TWO.append(str(param_entry[i].get()).strip(string.ascii_letters))
         elif(len(FILTER_TWO) == 0):
             #it must be filter 1
-            FILTER_ONE.append(param_entry[i].get())
+            FILTER_ONE.append(str(param_entry[i].get()).strip(string.ascii_letters))
         elif(filter_id == 1):
-            FILTER_ONE.append(param_entry[i].get())
+            FILTER_ONE.append(str(param_entry[i].get()).strip(string.ascii_letters))
         elif(filter_id == 2):
-            FILTER_TWO.append(param_entry[i].get())
+            FILTER_TWO.append(str(param_entry[i].get()).strip(string.ascii_letters))
     filterParams.destroy()
-
+    sendFilter(filter_id)
+    
 def deleteFilter(filter_id,filterParams):
+    
     global FILTER_ONE
     global FILTER_TWO
     global FILTER_ONE_SET
     global FILTER_TWO_SET
-    if(filter_id== 1):
-        FILTER_ONE = list()
-        FILTER_ONE_SET = False
-        filterOne.configure(bg="red",text="Filter One")
-    else:
-        FILTER_TWO = list()
-        FILTER_TWO_SET = False
-        filterTwo.configure(bg="red",text="Filter Two")
-        
-    filterParams.destroy()
-
+    if((filter_id == 1) and (FILTER_TWO_SET)):#ensure we don't delete filter 1 before filter 2
+        pass
+    else: 
+        if(filter_id== 1):
+            FILTER_ONE = list()
+            FILTER_ONE_SET = False
+            filterOne.configure(bg="red",text="Filter One")
+        else:
+            FILTER_TWO = list()
+            FILTER_TWO_SET = False
+            filterTwo.configure(bg="red",text="Filter Two")
+            
+        filterParams.destroy()
 def editMix():
     pass
 
@@ -184,7 +235,7 @@ not_chosen = True
 while(not_chosen):
 
     print("Choose Parallel (P) or Serial (S) mode.")
-    mode_choice = str(input())
+    mode_choice = str(raw_input())
     global PAE
     if((mode_choice == "S") or (mode_choice == "s")):
         PARALLEL_MODE = False
@@ -192,6 +243,7 @@ while(not_chosen):
     elif((mode_choice == "P") or (mode_choice == "p")):
         PARALLEL_MODE = True
         break
+sendMode()
 if(PARALLEL_MODE == False):
     #SERIAL DESIGN
     lineInput = Label(root,borderwidth=0,text="IN --------->",relief="solid",padx=0,pady=1)
